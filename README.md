@@ -1,59 +1,63 @@
-# Multi-Tenant URL Shortener (Laravel)
+# Multi-Tenant URL Shortener (Laravel 11)
 
-A secure, production-quality, multi-tenant URL Shortener built with Laravel 11 and MySQL, implementing strict company data isolation, role-based access control, cryptographic invitation flows, and public link redirection.
+[![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Tests](https://img.shields.io/badge/Tests-34%20Passed-success?style=for-the-badge)](https://phpunit.de)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
+A production-grade, multi-tenant URL Shortener built with **Laravel 11**, **MySQL**, and **Bootstrap 5**. Designed with a single-database multi-tenancy model featuring strict company-level data isolation, role-based access control (RBAC), secure hashed invitation workflows, and public link resolution.
 
 ---
 
-## 1. Project Overview
-
-This application serves multiple tenant organizations from a single application instance and a single shared database. It is engineered with strict least-privilege principles, backend policy-enforced permissions, query-level multi-tenant scopes, and cryptographically hashed invitations.
-
-### Key Roles and Permissions Matrix
+## 🚀 Key Features & Permissions Matrix
 
 | Capability | SuperAdmin (Platform) | Admin (Company) | Member (Company) |
 |---|:---:|:---:|:---:|
-| **Company Association** | None (Platform-wide) | Exactly 1 Company | Exactly 1 Company |
-| **Login / Logout** | Yes | Yes | Yes |
-| **Platform Dashboard** | Yes | No | No |
-| **View Companies** | Yes (All) | No | No |
-| **Invite New Tenant (Admin + Co)** | Yes | No | No |
-| **Invite Users to Own Company** | No | Yes (Admin or Member) | No |
-| **Invite Users to Other Company**| No | **DENIED** (Server-enforced) | No |
-| **Create Short URLs** | **DENIED** | Yes | Yes |
-| **Short URL Visibility Scope** | **All** companies & users | **Own company only** | **Own created URLs only** |
-| **Public URL Resolution (`/s/{code}`)** | Yes (No auth needed) | Yes (No auth needed) | Yes (No auth needed) |
+| **Tenant Scope** | Global (Platform-wide) | Own Company | Own Company |
+| **Login / Logout** | ✅ | ✅ | ✅ |
+| **Platform Console** | ✅ | ❌ | ❌ |
+| **Inspect Tenant Companies** | ✅ (Full drilldown) | ❌ | ❌ |
+| **Onboard New Tenant (Admin + Co)** | ✅ | ❌ | ❌ |
+| **Invite Users to Own Company** | ❌ | ✅ (Admin / Member) | ❌ |
+| **Invite Users to Other Company** | ❌ | 🚫 **Denied** | ❌ |
+| **Create Short URLs** | 🚫 **Denied** | ✅ | ✅ |
+| **Short URL Visibility** | **All companies** | **Own company only** | **Self-created only** |
+| **Public URL Redirection (`/s/{code}`)** | ✅ (Public) | ✅ (Public) | ✅ (Public) |
+| **Profile & Password Settings** | ✅ | ✅ | ✅ |
 
 ---
 
-## 2. Requirements & Environment
+## 🛠️ Technology Stack & Requirements
 
-- **PHP:** `^8.2` (Verified on PHP 8.2.0)
+- **PHP:** `^8.2` (Verified on PHP 8.2)
 - **Framework:** `Laravel 11.x`
-- **Database:** MySQL 8.x / MariaDB (Database name: `2026_short_url`) or SQLite for test runners
-- **Composer:** `^2.x`
+- **Database:** MySQL 8.0+ / MariaDB (or SQLite for automated test runners)
+- **Frontend:** Laravel Blade, Bootstrap 5.3, Bootstrap Icons, Plus Jakarta Sans & JetBrains Mono typography
+- **Testing:** PHPUnit (34 Feature & Unit Tests, 110 Assertions)
 
 ---
 
-## 3. Installation & Setup
+## 📦 Installation & Setup
 
-### Step 1: Clone or Open Directory
+### 1. Clone Repository
 ```bash
-cd d:/wampp64/www/interviews/shorturl
+git clone https://github.com/Humty-Sharma/lms.git
+cd lms
 ```
 
-### Step 2: Install Composer Dependencies
+### 2. Install Dependencies
 ```bash
 composer install
 ```
 
-### Step 3: Configure Environment Variables
-Copy `.env.example` to `.env` if not already present:
+### 3. Environment Configuration
+Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-Configure your `.env` database settings:
+Configure your database connection in `.env`:
 ```ini
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -62,89 +66,96 @@ DB_DATABASE=2026_short_url
 DB_USERNAME=root
 DB_PASSWORD=
 
-# Initial SuperAdmin Credentials for Seeder
+# Initial SuperAdmin Credentials
 SUPERADMIN_NAME="Super Administrator"
 SUPERADMIN_EMAIL="superadmin@example.com"
 SUPERADMIN_PASSWORD="Password123!"
 ```
 
-### Step 4: Run Database Migrations and SuperAdmin Seeder
-Execute fresh migrations and run the raw SQL SuperAdmin seeder:
+### 4. Run Migrations & Seeder
+Execute fresh migrations and seed the initial SuperAdmin account:
 ```bash
 php artisan migrate:fresh --seed
 ```
 
 ---
 
-## 4. SuperAdmin Database Seeder Details
+## ⚡ Initial SuperAdmin Account
 
-As explicitly required by the technical assessment:
-- **Raw SQL execution:** Uses `DB::statement('INSERT INTO users (...) VALUES (?, ?, ...)')` with full query parameterization.
-- **Secure Hashing:** The password hash is generated via `Hash::make()` prior to query execution.
-- **Idempotency:** Safe to run repeatedly; detects existing accounts by email and updates timestamps without unexpectedly wiping an existing password.
-- **Configurable Credentials:** Controlled via `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` in `.env`.
-
-Default initial credentials seeded:
+The SuperAdmin account is initialized via a secure, parameterized raw SQL statement in `SuperAdminSeeder`:
+- **Login URL:** `http://localhost:8000/login`
 - **Email:** `superadmin@example.com`
 - **Password:** `Password123!`
 
+> **Tip:** The login page includes a **1-click Autofill** button for instant evaluation without manual typing.
+
 ---
 
-## 5. Running the Application
+## 🖥️ Running the Application
 
-Start the Laravel local development server:
+Start the local development server:
 ```bash
 php artisan serve
 ```
-Access the application in your browser at:
-[http://localhost:8000](http://localhost:8000)
+Visit **[http://localhost:8000](http://localhost:8000)** in your browser.
 
 ---
 
-## 6. Running Automated Tests
+## 🧪 Running Automated Tests
 
-Run the full PHPUnit automated feature and unit test suite:
+Run the complete test suite:
 ```bash
 php artisan test
 ```
 
-### Verified Test Matrix (29 Tests, 99 Assertions):
-- **Authentication:** Guest dashboard protections, login credential validation, session fixation protection, and CSRF-protected logout.
-- **URL Creation:** Admin and Member creation, SuperAdmin restriction (HTTP 403), URL validation (HTTP/HTTPS scheme check), prevention of company ID or creator ID spoofing, and unique code generation.
-- **URL Visibility & Tenancy Isolation:** SuperAdmin cross-tenant visibility, Admin company-scoped visibility, Member author-only visibility, and verified that pagination never leaks cross-tenant records.
-- **Company Invitations:** SuperAdmin new company & admin creation, Admin in-tenant invitations, prevention of Admin cross-company invitations, rejection of Member invite attempts, prevention of privilege escalation (SuperAdmin invites blocked for tenants), and rejection of expired/reused invitations.
-- **Public Redirects:** Resolves valid codes to original destination without login, returns 404 for unknown codes, prevents parameter-based destination overriding, and ensures no company metadata or internal IDs leak in redirect headers.
+### Verified Test Results:
+```
+PASS  Tests\Unit\ExampleTest
+PASS  Tests\Feature\AuthenticationTest (5 tests)
+PASS  Tests\Feature\ExampleTest (1 test)
+PASS  Tests\Feature\InvitationTest (8 tests)
+PASS  Tests\Feature\ProfileTest (5 tests)
+PASS  Tests\Feature\PublicRedirectTest (4 tests)
+PASS  Tests\Feature\ShortUrlCreationTest (6 tests)
+PASS  Tests\Feature\ShortUrlVisibilityTest (4 tests)
+
+Tests:    34 passed (110 assertions)
+Duration: 1.90s
+```
 
 ---
 
-## 7. Invitation Workflow & Local Testing
+## 🏢 Workflows
 
-1. **SuperAdmin Flow:**
-   - Log in as `superadmin@example.com`.
-   - Go to **Invitations** (`/invitations`).
-   - Enter a **New Company Name** (e.g. `Acme Corp`) and the **Admin Email** (`admin@acme.com`).
-   - Upon submission, the company is created and an invitation token is generated.
-   - The UI immediately presents the **invitation acceptance link** (with a 1-click copy button).
-2. **Acceptance Flow:**
-   - Open the acceptance URL (`/invitations/accept/{token}`).
-   - The invitee enters their name and chooses a password.
-   - The token is verified against the SHA-256 hash stored in the database.
-   - Once submitted, the user account is created, the invitation is marked as accepted (`accepted_at`), and the user is logged into their company dashboard.
-3. **Admin Flow:**
-   - The newly accepted Admin can now log in and navigate to `/invitations` to invite other **Admins** or **Members** strictly into their own company.
+### 1. SuperAdmin Onboarding Workflow
+1. Log in as `superadmin@example.com`.
+2. Navigate to **Invitations** (`/invitations`).
+3. Enter the **New Company Name** (e.g. `Acme Corp`) and the **Admin Email** (`admin@acme.com`).
+4. An invitation token is generated with a 1-click copy link.
+5. In the **Companies** directory (`/companies`), click **View Details** on any company to inspect its team members, active short links, and invitation history.
+
+### 2. Tenant Invitation Acceptance
+1. Open the invitation acceptance link: `/invitations/accept/{token}`.
+2. Enter your full name and password (minimum 8 characters).
+3. The system validates the SHA-256 token hash, activates the account, marks the invitation as accepted, and logs the user into their scoped dashboard.
+
+### 3. URL Shortening & Public Redirect
+1. Admins and Members can enter destination URLs (must start with `http://` or `https://`).
+2. A unique 6-character short code is generated with retry protection against database collisions.
+3. Accessing `http://localhost:8000/s/{code}` returns a **302 Redirect** directly to the original destination without requiring login.
 
 ---
 
-## 8. Architectural & Authorization Decisions
+## 🏛️ Architectural & Security Decisions
 
-1. **Shared Database, Multi-Tenant Isolation:**
-   - Multi-tenancy is modeled with a single database schema. Every tenant-specific table (`users`, `short_urls`, `invitations`) includes an indexed foreign key `company_id`.
-   - Foreign key constraints use `restrictOnDelete` so that parent records cannot be dropped while leaving orphaned URLs or audit trails.
-2. **Server-Enforced Scoping:**
-   - Visibility is enforced inside Eloquent query scopes via `ShortUrl::scopeVisibleTo(Builder $query, User $user)`.
-   - Creation requests (`ShortUrlController::store`) derive `company_id` and `user_id` strictly from `$request->user()`. User-supplied input for IDs is never accepted.
+1. **Strict Multi-Tenant Scoping:**
+   - Multi-tenant isolation is enforced inside the Eloquent query scope `ShortUrl::scopeVisibleTo(Builder $query, User $user)`.
+   - Records are filtered at the database level before loading into memory.
+2. **Server-Enforced Ownership:**
+   - URL creation strictly uses `$request->user()->company_id` and `$request->user()->id`. Request parameter spoofing of company or user IDs is completely ignored.
 3. **Cryptographic Token Storage:**
-   - Invitation tokens are generated using random alphanumeric strings. Only a SHA-256 digest (`token_hash`) is persisted. Plain text tokens are never stored in the database.
-4. **Clean, Idiomatic Laravel:**
-   - Built with dedicated Form Requests (`StoreShortUrlRequest`, `StoreInvitationRequest`, `AcceptInvitationRequest`), Laravel Policies (`ShortUrlPolicy`, `InvitationPolicy`), and Role Middleware (`EnsureUserRole`).
-   - Zero unnecessary repositories or artificial abstraction layers.
+   - Only a SHA-256 hash (`token_hash`) of invitation tokens is stored in the database. Tokens expire after 7 days and cannot be reused once accepted or revoked.
+4. **Foreign Key Integrity:**
+   - Relationships on `short_urls` and `invitations` use `restrictOnDelete()` to prevent accidental cascaded deletions from corrupting audit trails.
+5. **Session Fixation & CSRF Protection:**
+   - Session IDs are regenerated upon authentication (`$request->session()->regenerate()`), and CSRF tokens are refreshed on logout.
