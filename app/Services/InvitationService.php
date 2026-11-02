@@ -13,17 +13,10 @@ use InvalidArgumentException;
 
 class InvitationService
 {
-    /**
-     * Lifetime of an invitation token in days.
-     */
+    
     public const EXPIRATION_DAYS = 7;
 
-    /**
-     * Create an invitation initiated by a SuperAdmin.
-     * Automatically creates the new company and links an Admin invitation.
-     *
-     * @return array{invitation: Invitation, plainToken: string, company: Company}
-     */
+    
     public function createBySuperAdmin(User $inviter, string $companyName, string $email): array
     {
         if (! $inviter->isSuperAdmin()) {
@@ -55,12 +48,7 @@ class InvitationService
         });
     }
 
-    /**
-     * Create an invitation initiated by an Admin.
-     * Restricts target company to the authenticated admin's company and role to Admin or Member.
-     *
-     * @return array{invitation: Invitation, plainToken: string, company: Company}
-     */
+    
     public function createByAdmin(User $inviter, string $email, UserRole $role): array
     {
         if (! $inviter->isAdmin()) {
@@ -92,9 +80,7 @@ class InvitationService
         });
     }
 
-    /**
-     * Find a valid, unaccepted, unrevoked, unexpired invitation by plain token.
-     */
+    
     public function findValidInvitation(string $plainToken): ?Invitation
     {
         $tokenHash = hash('sha256', $plainToken);
@@ -110,9 +96,7 @@ class InvitationService
         return $invitation;
     }
 
-    /**
-     * Accept invitation and create the user account.
-     */
+    
     public function acceptInvitation(Invitation $invitation, string $name, string $password): User
     {
         if (! $invitation->isValid()) {
@@ -124,7 +108,7 @@ class InvitationService
                 'company_id' => $invitation->company_id,
                 'name' => $name,
                 'email' => $invitation->email,
-                'password' => $password, // Auto-hashed via User model cast
+                'password' => $password, 
                 'role' => $invitation->role,
             ]);
 
